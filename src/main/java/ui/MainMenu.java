@@ -94,8 +94,7 @@ public class MainMenu {
                 orderMenu();
                 break;  
             case 5:
-                System.out.println("Menu item management coming soon.");
-                pause();
+                itemMenu();
                 break;
             case 6:
                 viewSummary();
