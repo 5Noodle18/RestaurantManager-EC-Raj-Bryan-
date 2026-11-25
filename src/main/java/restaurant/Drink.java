@@ -34,11 +34,14 @@ public class Drink extends MenuItem {
         super(itemId, name, description, basePrice, calories);
         if (isAlcoholic)
             validateStrength(strength);
+        validateVolume(volume);
         this.alcoholicStrength = strength;
         this.isAlcoholic = isAlcoholic;
         this.drinkFlavor = drinkFlavor;
         this.volume = volume;
-        setCalories(getCalories() + ALCOHOL_CALORIES);
+        if (isAlcoholic) {
+            setCalories(getCalories() + ALCOHOL_CALORIES);
+        }
     }
 
     public Drink(
@@ -87,7 +90,7 @@ public class Drink extends MenuItem {
 
     @Override 
     public String getServingInstructions(){
-        int formattedStrength = (int) alcoholicStrength*100;
+        int formattedStrength = Math.round(alcoholicStrength * 100);
         String alcoholText = isAlcoholic
             ? "after asking for Customer ID. 21+ only."
             : "";
@@ -117,6 +120,22 @@ public class Drink extends MenuItem {
         }
     }
 
+    public String getDrinkFlavor() {
+        return drinkFlavor;
+    }
+
+    public boolean isAlcoholic() {
+        return isAlcoholic;
+    }
+
+    public float getAlcoholicStrength() {
+        return alcoholicStrength;
+    }
+
+    public float getVolume() {
+        return volume;
+    }
+
 
     //=========================================================================
     // Overrides
@@ -125,7 +144,7 @@ public class Drink extends MenuItem {
     @Override 
     public String toString(){
         return super.toString() + String.format(
-            " | Strength: %d | Flavor: %s | Volume: %.2d oz",
+            " | Strength: %.2f | Flavor: %s | Volume: %.0f oz",
             alcoholicStrength,
             drinkFlavor,
             volume
