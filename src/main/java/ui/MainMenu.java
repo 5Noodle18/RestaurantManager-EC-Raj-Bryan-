@@ -750,14 +750,15 @@ public class MainMenu {
             System.out.println("2. Entree");
             System.out.println("3. Dessert");
             System.out.println("4. Side");
-            System.out.println("5. Back");
+            System.out.println("5. Drink");
+            System.out.println("6. Back");
             int typeChoice = readInt("Enter a choice: ");
 
-            if (typeChoice == 5 || typeChoice == 0) {
+            if (typeChoice == 6 || typeChoice == 0) {
                 return;
             }
-            if (typeChoice < 1 || typeChoice > 4) {
-                throw new IllegalArgumentException("Choose 1 through 5.");
+            if (typeChoice < 1 || typeChoice > 5) {
+                throw new IllegalArgumentException("Choose 1 through 6.");
             }
 
             String id = readLine("Item ID (e.g. A1, E1, D1, S1): ");
@@ -812,6 +813,8 @@ public class MainMenu {
                     }
                     break;
 
+                case 5:
+                    //TODO
                 default:
                     throw new IllegalArgumentException("Choose 1 through 5.");
             }

@@ -1,17 +1,11 @@
 package restaurant;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
 public class Drink extends MenuItem {
 
     // Private static final constants
     private static final int MIN_VOLUME = 4;
     private static final int MAX_VOLUME = 64;
     private static final float MAX_STRENGTH = 0.15f;
-    private static final String[] types = {"soda", "juice", "tea", "beer"};
     private static final double ALCOHOLIC_UPCHARGE = 2.50; //this is per oz
     private static final int ALCOHOL_CALORIES = 98;
 
@@ -19,6 +13,7 @@ public class Drink extends MenuItem {
     private String drinkFlavor;
     private boolean isAlcoholic;
     private float alcoholicStrength;
+    private float volume;
 
     /**
      * Default Constructor
@@ -34,6 +29,7 @@ public class Drink extends MenuItem {
             float strength,
             boolean isAlcoholic, 
             String drinkFlavor,
+            float volume
             ) {
         super(itemId, name, description, basePrice, calories);
         if (isAlcoholic)
@@ -41,6 +37,8 @@ public class Drink extends MenuItem {
         this.alcoholicStrength = strength;
         this.isAlcoholic = isAlcoholic;
         this.drinkFlavor = drinkFlavor;
+        this.volume = volume;
+        setCalories(getCalories() + ALCOHOL_CALORIES);
     }
 
     public Drink(
@@ -49,9 +47,10 @@ public class Drink extends MenuItem {
         String description,
         double basePrice,
         int calories,
-        int sweetness,
-        boolean nuts){
-    this(itemId, name, description, basePrice, calories, sweetness, false, "None", nuts);
+        float strength,
+        float volume
+        ){
+            this(itemId, name, description, basePrice, calories, strength, false, "None", volume);
         }
 
     // ===================================================================================================================
@@ -60,50 +59,76 @@ public class Drink extends MenuItem {
     
     @Override 
     public int calculatePrepTime(){
-        int prep = 6;
-        if(withIceCream){
-            prep+=1;
+        int prep = 1;
+        if (isAlcoholic){
+            prep+=2;
         }
-        prep+=toppings.size();
+
+        int volumeTime = (int) volume / 32;
+        prep+=volumeTime;
         return prep;
     }
 
     @Override
     public double calculateCoursePrice(){
         double total = getBasePrice();
-        if(withIceCream){
-            total+=ICE_CREAM_UPCHARGE;
+        if(isAlcoholic){
+
+            total+= ALCOHOLIC_UPCHARGE*(alcoholicStrength+1.0f);
         }
-        total+= toppings.size() * TOPPING_UPCHARGE;
-        return roundCurrency(total);
+        if (volume > 32)
+            total += 2.0;
+        else if (volume > 12)
+            total += 1.0;
+        
+        total = roundCurrency(total);
+        return total;
     }
 
     @Override 
     public String getServingInstructions(){
-        String aLaModeText = withIceCream
-            ? "a la mode with 1 scoop of " + iceCreamFlavor + " ice cream"
+        int formattedStrength = (int) alcoholicStrength*100;
+        String alcoholText = isAlcoholic
+            ? "after asking for Customer ID. 21+ only."
             : "";
-        String toppingsText = toppings.isEmpty()
-            ? ""
-            : "topped with " + String.join(" ,", toppings);  
-    String nutWarning = containsNuts ? " [CONTAINS NUTS]" : "";
     return String.format(
-        "DESSERT [Sweetness: %d/5]%s: Serve %s, %s.", 
-                sweetnessLevel,
-                nutWarning,
-                aLaModeText,
-                toppingsText);
+        "DRINK [Strength: %d.00%]: Serve %s", 
+                formattedStrength,
+                alcoholText);
     }
 
     // ===================================================================================================================
     // Unique Methods for Drink
     //======================================================================================================
 
-    public boolean validateStrength(float strength) {
+    public void validateStrength(float strength) {
         
         if(strength < 0.0f || strength > MAX_STRENGTH){
             throw new IllegalArgumentException(
                 "An alcoholic beverage's strength must be between 0.0 and " + MAX_STRENGTH);
         }
+    }
+
+    public void validateVolume(float volume) {
+        
+        if (volume < MIN_VOLUME || volume > MAX_VOLUME) {
+            throw new IllegalArgumentException(
+                "A beverage's volume must be between" + MIN_VOLUME + " and " + MAX_VOLUME);
+        }
+    }
+
+
+    //=========================================================================
+    // Overrides
+    //=========================================================================
+
+    @Override 
+    public String toString(){
+        return super.toString() + String.format(
+            " | Strength: %d | Flavor: %s | Volume: %.2d oz",
+            alcoholicStrength,
+            drinkFlavor,
+            volume
+        );
     }
 }
